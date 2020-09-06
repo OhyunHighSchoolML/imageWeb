@@ -5,13 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<style>
+    .preview{
+        width: 100px;
+        height: 100px;
+    }
+</style>
 <body>
     
     <h1>강아지 고양이 분류하기</h1>
     <!-- <button type="button" onclick="init()">Start</button>  스타트 버튼을 누르지않고 로딩하기위함-->
     <!-- <div id="webcam-container"></div>  웹캠 사용을 없애기 위해서 삭제-->
-    <input type="file" name="이미지 업로드하기" id="inputImage">
-    <img class="preview"></img>
+    <input type="file" id="img" onchange="preview()">
+
+    <img class="preview" width="100" height="100" />
+
+<!-- <input type="file" onchange="document.getElementById('blah').src = window.URL.createObjectURL(this.files[0])"> -->
     <div id="label-container"></div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
@@ -61,20 +70,25 @@
         // run the webcam image through the image model
         init()
         function preview(e) {
-            
+            var imgfile = document.getElementById("img")
+            var url = window.URL.createObjectURL(imgfile.files[0])
+            var imgdom = document.getElementsByClassName('preview')[0]
+            imgdom.src = url
+            // let reader = new FileReader();
+            // reader.onload = function (re) {
+            //     document.getElementsByClassName('preview').setAttribute('src',re.target.result);
+            // }
+            // reader.readAsDataURL(e.target.files[0])
+            predict()
         }
+        
         async function predict(e) {
             // predict can take in an image, video or canvas html element
 
             // 마찬가지 webcom.canvas 라는 부분을 보니 웹캠을 읽는것으로 보인다.
-            // const prediction = await model.predict(webcam.canvas); 
-            //이미지를 읽어오도록 합시다!
-            let reader = new FileReader();
-            reader.onload = function (re) {
-                document.getElementsByClassName('preview').setAttribute('src',re.target.result);
-            }
-            reader.readAsDataURL(e.target.files[0])
+            // const prediction = await model.predict(webcam.canvas);
             // 아래 코드를 추가해서 이미지를 예측.
+            var image = document.getElementsByClassName('preview')[0]
             const prediction = await model.predict(image);
 
             for (let i = 0; i < maxPredictions; i++) {
