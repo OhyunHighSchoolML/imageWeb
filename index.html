@@ -17,9 +17,7 @@
     <button type="button" onclick="init()">Start</button>
     <div id="webcam-container"></div>
     <input type="file" id="img" onchange="preview()">
-
     <img class="preview" width="100" height="100" />
-
 <!-- <input type="file" onchange="document.getElementById('blah').src = window.URL.createObjectURL(this.files[0])"> -->
     <div id="label-container"></div>
 </body>
@@ -89,8 +87,7 @@
             // const prediction = await model.predict(webcam.canvas);
             // 아래 코드를 추가해서 이미지를 예측.
             var image = document.getElementsByClassName('preview')[0]
-            const prediction = await model.predict(image);
-
+            const prediction = await model.predict(image,false);
             for (let i = 0; i < maxPredictions; i++) {
                 const classPrediction =
                     prediction[i].className + ": " + prediction[i].probability.toFixed(2);
