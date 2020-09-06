@@ -1,98 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<style>
-    .preview{
-        width: 100px;
-        height: 100px;
-    }
-</style>
-<body>
-    
-    <h1>강아지 고양이 분류하기</h1>
-    <button type="button" onclick="init()">Start</button>
-    <div id="webcam-container"></div>
-    <input type="file" id="img" onchange="preview()">
-    <img class="preview" width="100" height="100" />
-<!-- <input type="file" onchange="document.getElementById('blah').src = window.URL.createObjectURL(this.files[0])"> -->
-    <div id="label-container"></div>
-</body>
+<div>Teachable Machine Image Model</div>
+<button type="button" onclick="init()">Start</button>
+<div id="webcam-container"></div>
+<div id="label-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
-    <script type="text/javascript">
-        // More API functions here:
-        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-    
-        // the link to your model provided by Teachable Machine export panel
-        const URL = "./my_model/";
-    
-        let model, webcam, labelContainer, maxPredictions;
-    
-        // Load the image model and setup the webcam
-        async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
-    
-            // load the model and metadata
-            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-            // or files from your local hard drive
-            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
-    // 웹캠으로 동작하는 부분을 삭제!~
-            // Convenience function to setup a webcam
-            // const flip = true; // whether to flip the webcam
-            // webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-            // await webcam.setup(); // request access to the webcam
-            // await webcam.play();
-            // window.requestAnimationFrame(loop);
-    
-            // // append elements to the DOM
-            // document.getElementById("webcam-container").appendChild(webcam.canvas);
-            labelContainer = document.getElementById("label-container");
-            for (let i = 0; i < maxPredictions; i++) { // and class labels
-                labelContainer.appendChild(document.createElement("div"));
-            }
-        }
-    // 웹캠을 실시간으로 로딩하는 형태의 코드임. 우리는 이미지 업로드를 통해서 진행할것이므로 삭제!
-        // async function loop() {
-        //     webcam.update(); // update the webcam frame
-        //     await predict();
-        //     window.requestAnimationFrame(loop);
-        // }
-    
-        // run the webcam image through the image model
-        init()
-        function preview(e) {
-            var imgfile = document.getElementById("img")
-            var url = window.URL.createObjectURL(imgfile.files[0])
-            var imgdom = document.getElementsByClassName('preview')[0]
-            imgdom.src = url
-            // let reader = new FileReader();
-            // reader.onload = function (re) {
-            //     document.getElementsByClassName('preview').setAttribute('src',re.target.result);
-            // }
-            // reader.readAsDataURL(e.target.files[0])
-            predict()
-        }
-        
-        async function predict(e) {
-            // predict can take in an image, video or canvas html element
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
 
-            // 마찬가지 webcom.canvas 라는 부분을 보니 웹캠을 읽는것으로 보인다.
-            // const prediction = await model.predict(webcam.canvas);
-            // 아래 코드를 추가해서 이미지를 예측.
-            var image = document.getElementsByClassName('preview')[0]
-            const prediction = await model.predict(image,false);
-            for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-                labelContainer.childNodes[i].innerHTML = classPrediction;
-            }
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/Ghi6IBAoz/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
         }
-    </script>
-</html>
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+    // run the webcam image through the image model
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+    }
+</script>
